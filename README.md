@@ -1,1 +1,2 @@
-# SIT323-8.1P
+# SIT323-9.1P
+Please see the `img` folder for screenshots of the assignment.
