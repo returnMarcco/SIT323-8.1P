@@ -1,7 +1,7 @@
 FROM node:16
 
 # Create app directory
-WORKDIR /~/sit323/5.1P/
+WORKDIR .\
 
 # Install dependencies
 COPY package*.json ./

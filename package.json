@@ -18,6 +18,7 @@
   },
   "homepage": "https://github.com/returnMarcco/SIT323-4.2C#readme",
   "dependencies": {
-    "express": "^4.19.2"
+    "express": "^4.19.2",
+    "mongodb": "6.6"
   }
 }

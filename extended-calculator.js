@@ -1,14 +1,57 @@
 // Imports
 const express = require('express');
 const res = require('express/lib/response');
+const { MongoClient, ServerApiVersion } = require('mongodb');
 
 // End of Imports
 
 /**
  * ----------------------------------------------
- * SIT323: 3.1P
+ * SIT323: 8.1P
  * ----------------------------------------------
  */
+
+/**
+ * ----------------------------------------------
+ * MongoDB Driver Config
+ * ----------------------------------------------
+ */
+
+const uri = 'mongodb://admin:password@localhost:32000/';
+
+const client = new MongoClient(uri, {
+    serverApi: {
+        version: ServerApiVersion.v1,
+        strict: true,
+        deprecationErrors: true,
+    },
+});
+
+/**
+ * Test connection to the MongoDB database.
+ *
+ * https://www.mongodb.com/docs/drivers/node/current/fundamentals/connection/connect/#std-label-node-connect-to-mongodb
+ *
+ * @returns {Promise<void>}
+ */
+async function run() {
+    try {
+        // Connect the client to the server (optional starting in v4.7)
+        await client.connect();
+        // Send a ping to confirm a successful connection
+        await client.db("admin").command({ ping: 1 });
+        console.log("Pinged your deployment. You successfully connected to MongoDB!");
+    } finally {
+        // Ensures that the client will close when you finish/error
+        // await client.close();
+    }
+}
+run().catch(console.dir);
+
+const myDb         = client.db('calculator_event_store');
+const myCollection = myDb.collection('arithmetic_event_source');
+
+// End of Db config.
 
 /**
  * ----------------------------------------------
@@ -168,7 +211,7 @@ const app = express();
 /**
  * `GET Add Numbers` endpoint.
  */
-app.get('/add', (req, res) => {
+app.get('/add', async (req, res) => {
     // err handling
     try {
         const num1 = parseFloat(req.query.num1);
@@ -177,7 +220,17 @@ app.get('/add', (req, res) => {
         checkTypeNumberForTwoArgs(num1, num2);
 
         const result = add(num1, num2);
-        res.status(200).json({ httpCode: 200, data: result });
+
+        const structuredRes = {
+            "num_1" : num1,
+            "num2"  : num2,
+            "sum"   : result,
+            "user"  : 'jvellucci@deakin.edu.au'
+        };
+
+        const postRes = await myCollection.insertOne(structuredRes);
+
+        res.status(200).json({ httpCode: 200, data: postRes });
     } catch (error) {
         console.log(error);
         res.status(500).json({ httpCode: 500, msg: error.toString() });
